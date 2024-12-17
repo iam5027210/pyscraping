@@ -7,6 +7,7 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib
 from io import BytesIO
+import requests
 
 # -----------------------------------------------------------------------------
 # 날짜별 환율 데이터를 반환하는 함수
@@ -19,7 +20,10 @@ def get_exchange_rate_data(currency_code, last_page_num):
     
     for page_num in range(1, last_page_num+1):
         url = f"{base_url}?marketindexCd={currency_code}&page={page_num}"
-        dfs = pd.read_html(url, header=1)
+        response = requests.get(url)
+        response.encoding = 'cp949'
+
+        dfs = pd.read_html(response.text, header=1)
         
         # 통화 코드가 잘못 지정됐거나 마지막 페이지의 경우 for 문을 빠져나옴
         if dfs[0].empty: 
@@ -75,7 +79,7 @@ if(clicked==True):
 
     # df_exchange_rate2의 index를 datetime 형식으로 변환
     df_exchange_rate2.index = pd.to_datetime(df_exchange_rate2.index, 
-                                             format='%Y-%m-%d') 
+                                             format='%Y.%m.%d') 
 
     # 1) 환율 데이터 표시
     st.subheader(f"[{currency_name}] 환율 데이터")
